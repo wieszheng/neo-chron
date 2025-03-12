@@ -46,16 +46,31 @@ extern uint8_t MIN_BRIGHTNESS;
 extern uint8_t MAX_BRIGHTNESS;
 extern uint8_t MIN_BRIGHTNESS_NIGHT;
 extern uint8_t MAX_BRIGHTNESS_NIGHT;
-extern uint8_t NIGHT_START;
-extern uint8_t NIGHT_END;
-extern uint32_t WDC_ACTIVE;
-extern uint32_t WDC_INACTIVE;
-extern uint32_t TEXTCOLOR;
+extern String NIGHT_START;
+extern String NIGHT_END;
+extern String WDC_ACTIVE;
+extern String WDC_INACTIVE;
+extern String TEXTCOLOR;
+extern String HUM_COLOR;
+extern String TEMP_COLOR;
 
 extern bool DEBUG_MODE;
 
+extern String NTP_SERVER;
+extern String NTP_TZ;
+
+extern String TIME_FORMAT;
+extern String DATE_FORMAT;
+extern bool TIME_SHOW_S;
+extern bool DATE_SHOW_Y ;
+extern String TIME_ICON;
+extern String DATE_ICON;
+
+extern bool SHOW_DATE;
+
 void loadConfig();
 void setConfig(JsonObject &json);
+String getConfig();
 void saveConfig();
 
 #endif // CONFIG_H

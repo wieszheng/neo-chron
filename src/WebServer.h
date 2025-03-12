@@ -7,6 +7,7 @@
 #include <DNSServer.h>
 #include <LittleFS.h>
 
+#include "Config.h"
 
 class WebServer
 {
@@ -31,6 +32,7 @@ private:
     void handleReset();
     void handleScanNetworks();
     void handleSetConfig();
+    void handleGetConfig();
     void doWifiConnection();
     void handleNotFound();
 

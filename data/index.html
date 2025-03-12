@@ -54,11 +54,13 @@
             justify-content: center;
             margin-bottom: 10px;
         }
+
         .logo-icon {
             width: 50px;
             height: 50px;
             margin-right: 12px;
         }
+
         .version-badge {
             position: absolute;
             top: -10px;
@@ -687,11 +689,90 @@
             font-size: 0.8rem;
             color: var(--light-text);
         }
+
         /* 品牌标识和标题样式 */
         .brand {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 图标选择器样式 */
+        .icon-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .icon-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .icon-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .icon-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 108, 247, 0.1);
+        }
+
+        .icon-option svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .icon-option-label {
+            font-size: 0.75rem;
+            color: var(--light-text);
+        }
+
+        /* 格式选择器样式 */
+        .format-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .format-option {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .format-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .format-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 108, 247, 0.1);
+        }
+
+        .format-preview {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .format-description {
+            font-size: 0.75rem;
+            color: var(--light-text);
         }
 
         @media (max-width:480px) {
@@ -734,6 +815,14 @@
                 min-width: 80px;
                 flex: 1;
             }
+
+            .format-options {
+                flex-direction: column;
+            }
+
+            .format-option {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -745,19 +834,21 @@
                 <div class="brand">
                     <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="" />
-                            <stop offset="100%" stop-color="" />
-                        </linearGradient>
+                            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="" />
+                                <stop offset="100%" stop-color="" />
+                            </linearGradient>
                         </defs>
-                        <rect width="100" height="100" rx="15" fill="white" stroke="url(#logoGradient)" stroke-width="3" />
-                        
+                        <rect width="100" height="100" rx="15" fill="white" stroke="url(#logoGradient)"
+                            stroke-width="3" />
+
                         <!-- 字母N -->
-                        <path d="M30 25 L30 75 L45 75 L45 40 L70 75 L70 25 L55 25 L55 60 L30 25Z" fill="url(#logoGradient)" />
-                        
+                        <path d="M30 25 L30 75 L45 75 L45 40 L70 75 L70 25 L55 25 L55 60 L30 25Z"
+                            fill="url(#logoGradient)" />
+
                         <!-- 字母C -->
                         <!-- <path d="M55 40 A20 20 0 1 1 55 60" stroke="url(#logoGradient)" stroke-width="12" fill="none" stroke-linecap="round" /> -->
-                        
+
                         <!-- 时钟指针点缀 -->
                         <circle cx="50" cy="50" r="3" fill="#ff5500" />
                     </svg>
@@ -860,37 +951,98 @@
                     <div class="form-group">
                         <label for="timezone">时区</label>
                         <select id="timezone" class="select-input">
-                            <option value="UTC+07:00">(UTC+07:00) 曼谷，河内，雅加达</option>
-                            <option value="UTC+08:00" selected>(UTC+08:00) 北京，香港，新加坡</option>
+                            <option value="CST-8" selected>(UTC+08:00) 北京，上海</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <div class="toggle-container">
-                            <label for="time-format">使用24小时制</label>
-                            <label class="switch">
-                                <input type="checkbox" id="time-format" checked>
-                                <span class="slider round"></span>
-                            </label>
+                        <label>时间格式</label>
+                        <div class="format-options" id="time-format-options">
+                            <div class="format-option selected" data-format="%H:%M">
+                                <div class="format-preview">14:30</div>
+                                <div class="format-description">24小时制</div>
+                            </div>
+                            <div class="format-option" data-format="%M:%H">
+                                <div class="format-preview">30:14</div>
+                                <div class="format-description">12小时制</div>
+                            </div>
+                            <div class="format-option" data-format="%H %M">
+                                <div class="format-preview">1430</div>
+                                <div class="format-description">无冒号</div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>显示选项</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-container">
+                        <div class="toggle-container">
+                            <label for="show-seconds">显示秒数</label>
+                            <label class="switch">
                                 <input type="checkbox" id="show-seconds" checked>
-                                <span class="checkmark"></span>
-                                显示秒数
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="show-date" checked>
-                                <span class="checkmark"></span>
-                                显示日期
+                                <span class="slider round"></span>
                             </label>
                         </div>
                     </div>
+                    <div class="form-group hidden" id="seconds-icon-container">
+                        <label for="seconds-icon">秒数替代图标</label>
+                        <select id="seconds-icon" class="select-input">
+                            <option value="none">无图标</option>
+                            <option value="1">icon_1</option>
+                            <option value="2">icon_2</option>
+                            <option value="3">icon_3</option>
+                            <option value="4">icon_4</option>
+                            <option value="5">icon_5</option>
+                            <option value="6">icon_6</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>日期格式</label>
+                        <div class="format-options" id="date-format-options">
+                            <div class="format-option selected" data-format="%y-%m-%d">
+                                <div class="format-preview">25-03-12</div>
+                                <div class="format-description">年-月-日</div>
+                            </div>
+                            <div class="format-option" data-format="%m/%d/%y">
+                                <div class="format-preview">03/12/25</div>
+                                <div class="format-description">月/日/年</div>
+                            </div>
+                            <div class="format-option" data-format="%d.%m.%y">
+                                <div class="format-preview">12.03.25</div>
+                                <div class="format-description">日.月.年</div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label for="show-year">显示年份</label>
+                            <label class="switch">
+                                <input type="checkbox" id="show-year" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group hidden" id="year-icon-container">
+                        <label for="year-icon">年份替代图标</label>
+                        <select id="year-icon" class="select-input">
+                            <option value="none">无图标</option>
+                            <option value="1">icon_1</option>
+                            <option value="2">icon_2</option>
+                            <option value="3">icon_3</option>
+                            <option value="4">icon_4</option>
+                            <option value="5">icon_5</option>
+                            <option value="6">icon_6</option>
+                          </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <label for="show-date">显示日期</label>
+                            <label class="switch">
+                                <input type="checkbox" id="show-date" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
                     <!-- 将三个颜色选择器放在一行 -->
                     <div class="form-group">
                         <label>颜色设置</label>
@@ -975,6 +1127,7 @@
                             <option value="2">Layout 2</option>
                             <option value="3">Layout 3</option>
                             <option value="4">Layout 4</option>
+                            <option value="5">Layout 5</option>
                         </select>
                     </div>
                 </div>
@@ -983,8 +1136,8 @@
                     <div class="form-group">
                         <label for="color-mode">选择色彩模式</label>
                         <select id="color-mode" class="select-input">
-                            <option value="0" selected>TypicalLEDStrip</option>
-                            <option value="1">Candle</option>
+                            <option value="0">TypicalLEDStrip</option>
+                            <option value="1" selected>Candle</option>
                             <option value="2">Tungsten40W</option>
                             <option value="3">Tungsten100W</option>
                             <option value="4">Halogen</option>
@@ -1031,8 +1184,14 @@
 
         // DOM Elements - Clock Tab
         const timezoneSelect = document.getElementById("timezone");
-        const timeFormatToggle = document.getElementById("time-format");
+        const timeFormatOptions = document.getElementById("time-format-options");
         const showSecondsCheckbox = document.getElementById("show-seconds");
+        const secondsIconContainer = document.getElementById("seconds-icon-container");
+        const secondsIconSelect = document.getElementById("seconds-icon");
+        const dateFormatOptions = document.getElementById("date-format-options");
+        const showYearCheckbox = document.getElementById("show-year");
+        const yearIconContainer = document.getElementById("year-icon-container");
+        const yearIconSelect = document.getElementById("year-icon");
         const showDateCheckbox = document.getElementById("show-date");
         const textColorPicker = document.getElementById("text-color");
         const textColorValue = document.getElementById("text-color-value");
@@ -1063,10 +1222,14 @@
         let networks = [];
         let selectedNetwork = null;
         let isManualEntry = false;
-        let clockSettings = {
-            timezone: "UTC+08:00",
-            timeFormat24h: true,
+        let settings = {
+            timezone: "CST-8",
+            timeFormat: "%H:%M",
             showSeconds: true,
+            secondsIcon: "none",
+            dateFormat: "%y-%m-%d",
+            showYear: true,
+            yearIcon: "none",
             showDate: true,
             textColor: "#ffffff",
             currentDayColor: "#ff5500",
@@ -1078,10 +1241,6 @@
             nightBrightness: 20,
         };
 
-        let advancedSettings = {
-            matrixLayout: "1",
-            colorMode: "Tungsten40W",
-        };
         let port = location.port || (window.location.protocol === 'https:' ? '443' : '80');
         let esp = `${window.location.protocol}//${window.location.hostname}:${port}/`;
 
@@ -1299,7 +1458,53 @@
             currentDayColorValue.textContent = currentDayColorPicker.value;
             otherDaysColorValue.textContent = otherDaysColorPicker.value;
         }
+        function selectTimeFormat(format) {
+            const options = timeFormatOptions.querySelectorAll('.format-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.format === format) {
+                    option.classList.add('selected');
+                }
+            });
+            settings.timeFormat = format;
+        }
 
+        function selectDateFormat(format) {
+            const options = dateFormatOptions.querySelectorAll('.format-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.format === format) {
+                    option.classList.add('selected');
+                }
+            });
+            settings.dateFormat = format;
+        }
+
+        function selectSecondsIcon(icon) {
+            secondsIconSelect.value = icon;
+            settings.secondsIcon = icon;
+        }
+
+        function selectYearIcon(icon) {
+            yearIconSelect.value = icon;
+            settings.yearIcon = icon;
+        }
+
+        function toggleSecondsIconSelector() {
+            if (showSecondsCheckbox.checked) {
+                secondsIconContainer.classList.add('hidden');
+            } else {
+                secondsIconContainer.classList.remove('hidden');
+            }
+        }
+
+        function toggleYearIconSelector() {
+            if (showYearCheckbox.checked) {
+                yearIconContainer.classList.add('hidden');
+            } else {
+                yearIconContainer.classList.remove('hidden');
+            }
+        }
         function saveClockSettings() {
             clockSettings = {
                 timezone: timezoneSelect.value,
@@ -1321,17 +1526,36 @@
             alert("时钟设置保存成功！");
         }
 
-        function initClockSettingsForm() {
-            timezoneSelect.value = clockSettings.timezone;
-            timeFormatToggle.checked = clockSettings.timeFormat24h;
-            showSecondsCheckbox.checked = clockSettings.showSeconds;
-            showDateCheckbox.checked = clockSettings.showDate;
-            textColorPicker.value = clockSettings.textColor;
-            textColorValue.textContent = clockSettings.textColor;
-            currentDayColorPicker.value = clockSettings.currentDayColor;
-            currentDayColorValue.textContent = clockSettings.currentDayColor;
-            otherDaysColorPicker.value = clockSettings.otherDaysColor;
-            otherDaysColorValue.textContent = clockSettings.otherDaysColor;
+        function initSettingsForm() {
+            timezoneSelect.value = settings.timezone;
+            showDateCheckbox.checked = settings.show_date;
+            textColorPicker.value = settings.text_color;
+            textColorValue.textContent = settings.text_color;
+            currentDayColorPicker.value = settings.wdc_active;
+            currentDayColorValue.textContent = settings.wdc_active;
+            otherDaysColorPicker.value = settings.wdc_inactive;
+            otherDaysColorValue.textContent = settings.wdc_inactive;
+
+            brightnessSlider.value = settings.min_brightness;
+            brightnessValue.textContent = settings.min_brightness;
+            nightModeToggle.checked = true;
+            nightStartInput.value = settings.night_start;
+            nightEndInput.value = settings.night_end;
+            nightBrightnessSlider.value = settings.min_brightness_night;
+            nightBrightnessValue.textContent = settings.min_brightness_night;
+
+            matrixLayoutSelect.value = settings.matrix_layout;
+            colorModeSelect.value = settings.matrix_temp_correction;
+
+            selectSecondsIcon(settings.time_icon);
+            selectDateFormat(settings.date_format);
+            selectYearIcon(settings.date_icon);
+            selectTimeFormat(settings.time_format);
+            showYearCheckbox.checked = settings.date_show_y;
+            showSecondsCheckbox.checked = settings.time_show_s;
+            toggleNightModeSettings();
+            toggleSecondsIconSelector();
+            toggleYearIconSelector();
         }
 
 
@@ -1366,7 +1590,18 @@
                 text_color: textColorPicker.value,
                 wdc_active: currentDayColorPicker.value,
                 wdc_inactive: otherDaysColorPicker.value,
+
+                time_format: timeFormatOptions.querySelector('.selected').dataset.format,
+                time_icon: secondsIconSelect.value,
+                date_format: dateFormatOptions.querySelector('.selected').dataset.format,
+                date_icon: yearIconSelect.value,
+                time_show_s: showSecondsCheckbox.checked,
+                date_show_y: showYearCheckbox.checked,
+
+                show_date: showDateCheckbox.checked,
             };
+
+            console.log("高级设置已保存:", advancedSettings);
 
             fetch("/config", {
                 method: 'POST',
@@ -1379,32 +1614,26 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        console.log("高级设置已保存:", advancedSettings);
                         alert("高级设置保存成功！");
                     } else {
                         alert("保存设置失败: " + data.message);
                     }
                 });
-
-            console.log("高级设置已保存:", advancedSettings);
-            alert("高级设置保存成功！");
         }
 
-        function initAdvancedSettingsForm() {
-            brightnessSlider.value = clockSettings.brightness;
-            brightnessValue.textContent = clockSettings.brightness;
-            nightModeToggle.checked = clockSettings.nightMode;
-            nightStartInput.value = clockSettings.nightStart;
-            nightEndInput.value = clockSettings.nightEnd;
-            nightBrightnessSlider.value = clockSettings.nightBrightness;
-            nightBrightnessValue.textContent = clockSettings.nightBrightness;
 
-            matrixLayoutSelect.value = advancedSettings.matrixLayout;
-            colorModeSelect.value = advancedSettings.colorMode;
-
-            toggleNightModeSettings();
+        function fetchInitialSettings() {
+            fetch("/config")
+                .then(response => response.json())
+                .then(data => {
+                    settings = { ...settings, ...data };
+                    console.log("Initial settings fetched:", data);
+                    initSettingsForm();
+                })
+                .catch(error => {
+                    console.error("Error fetching initial settings:", error);
+                });
         }
-
         // Event Listeners
         scanBtn.addEventListener("click", scanNetworks);
         ssidInput.addEventListener("input", handleSsidInput);
@@ -1412,10 +1641,37 @@
         togglePasswordBtn.addEventListener("click", togglePasswordVisibility);
         connectBtn.addEventListener("click", connectToWiFi);
 
+
+        // 时间格式选择事件
+        timeFormatOptions.querySelectorAll('.format-option').forEach(option => {
+            option.addEventListener('click', () => {
+                selectTimeFormat(option.dataset.format);
+            });
+        });
+
+        // 日期格式选择事件
+        dateFormatOptions.querySelectorAll('.format-option').forEach(option => {
+            option.addEventListener('click', () => {
+                selectDateFormat(option.dataset.format);
+            });
+        });
+
+        // 秒图标选择事件
+        secondsIconSelect.querySelectorAll('.icon-option').forEach(option => {
+            settings.secondsIcon = secondsIconSelect.value;
+        });
+
+        // 年份图标选择事件
+        yearIconSelect.querySelectorAll('.icon-option').forEach(option => {
+            settings.yearIcon = yearIconSelect.value;
+        });
+
+        showSecondsCheckbox.addEventListener("change", toggleSecondsIconSelector);
+        showYearCheckbox.addEventListener("change", toggleYearIconSelector);
         nightModeToggle.addEventListener("change", toggleNightModeSettings);
         brightnessSlider.addEventListener("input", updateBrightnessDisplay);
         nightBrightnessSlider.addEventListener("input", updateNightBrightnessDisplay);
-        saveClockSettingsBtn.addEventListener("click", saveClockSettings);
+        saveClockSettingsBtn.addEventListener("click", saveSettings);
         textColorPicker.addEventListener("input", updateColorValues);
         currentDayColorPicker.addEventListener("input", updateColorValues);
         otherDaysColorPicker.addEventListener("input", updateColorValues);
@@ -1432,9 +1688,8 @@
         });
 
         // Initialize
+        fetchInitialSettings();
         scanNetworks();
-        initClockSettingsForm();
-        initAdvancedSettingsForm();
     </script>
 </body>
 

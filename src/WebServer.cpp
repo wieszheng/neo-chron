@@ -1,6 +1,10 @@
 #include "WebServer.h"
-#include "Config.h"
-// #include "html.h"
+
+
+IPAddress softLocal(192, 168, 4, 1);
+IPAddress softGateway(192, 168, 4, 1);
+IPAddress softSubnet(255, 255, 255, 0);
+
 
 WebServer::WebServer(ESP8266WebServer &server)
 {
@@ -13,10 +17,23 @@ bool WebServer::begin(int port)
     webserver->on("/connect", HTTP_POST, std::bind(&WebServer::doWifiConnection, this));
     webserver->on("/scan", HTTP_GET, std::bind(&WebServer::handleScanNetworks, this));
     webserver->on("/config", HTTP_POST, std::bind(&WebServer::handleSetConfig, this));
+    webserver->on("/config", HTTP_GET, std::bind(&WebServer::handleGetConfig, this));
     webserver->on("/reset", HTTP_GET, std::bind(&WebServer::handleReset, this));
 
     webserver->onNotFound(std::bind(&WebServer::handleNotFound, this));
     webserver->begin(port);
+
+    if (!MDNS.begin(HOSTNAME))
+    {
+      if (DEBUG_MODE)
+        DEBUG_PRINTLN(F("Error setting up MDNS responder!"));
+    }
+    else
+    {
+      MDNS.addService("http", "tcp", 80);
+      MDNS.addServiceTxt("neo_chron", "tcp", "name", HOSTNAME.c_str());
+    }
+
     return true;
 }
 
@@ -180,10 +197,12 @@ void WebServer::doWifiConnection()
 
 IPAddress WebServer::startWiFi(uint32_t timeout, const char *apSSID, const char *apPsw)
 {
+    
+    WiFi.hostname(HOSTNAME.c_str());
+    WiFi.softAPConfig(softLocal, softGateway, softSubnet);
     IPAddress ip;
     m_timeout = timeout;
     WiFi.mode(WIFI_STA);
-
     struct station_config conf;
     wifi_station_get_config_default(&conf);
     const char *_ssid = reinterpret_cast<const char *>(conf.ssid);
@@ -252,7 +271,7 @@ void WebServer::handleSetConfig()
         {
             Serial.println("Incoming JSON length: " + String(json.measureLength()));
             setConfig(json);
-            webserver->send(200, "application/json", "{\"success\": false, \"message\": \"Configuration saved\"}");
+            webserver->send(200, "application/json", "{\"success\": true, \"message\": \"Configuration saved\"}");
             delay(500);
             ESP.restart();
         }
@@ -265,4 +284,9 @@ void WebServer::handleSetConfig()
     {
         webserver->send(200, "application/json", "{\"success\": false, \"message\": \"No data received\"}");
     }
+}
+
+void WebServer::handleGetConfig()
+{
+    webserver->send(200, "application/json", getConfig());
 }
