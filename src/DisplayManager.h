@@ -5,13 +5,22 @@
 #include <FastLED_NeoMatrix.h>
 #include "Config.h"
 
+struct Animation
+{
+  const uint16_t (*frames)[8 * 8];
+  int frameCount;
+};
+
+
 class DisplayManager_
 {
 private:
     DisplayManager_() = default;
+    bool settingsMenuActive = false;
 
 public:
     static DisplayManager_ &getInstance();
+    
     void setup();
 
     void clear();
@@ -24,12 +33,15 @@ public:
     void nightBrightness();
 
     void drawBMP(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h);
+    void drawGif(int16_t x, int16_t y, Animation animation);
     void gradationText(int16_t x, int16_t y, const char *text, bool clear);
     void printText(int16_t x, int16_t y, const char *text, bool centered, bool ignoreUppercase);
     void drawWifi(int x, int y, int state);
-
-    uint16_t gradation(int x, int y);
     
+    void showOption(int optionIndex);
+    void activateSettingsMenu();
+    void deactivateSettingsMenu();
+    void drawTimeSetting(int h, int m, bool selected);
 };
 
 extern DisplayManager_ &DisplayManager;

@@ -40,6 +40,8 @@ void saveConfig()
     json["hum_color"] = HUM_COLOR;
     json["debug_mode"] = DEBUG_MODE;
     json["show_date"] = SHOW_DATE;
+    json["alarm_h"] = ALARM_H;
+    json["alarm_m"] = ALARM_M;
 
     File configFile = LittleFS.open("/config.json", "w");
     json.printTo(configFile);
@@ -137,6 +139,14 @@ void setConfig(JsonObject &json)
     if (json.containsKey("show_date"))
     {
         SHOW_DATE = json["show_date"].as<bool>();
+    }
+    if (json.containsKey("alarm_h"))
+    {
+        ALARM_H = json["alarm_h"].as<int>();
+    }
+    if (json.containsKey("alarm_m"))
+    {
+        ALARM_M = json["alarm_m"].as<int>();
     }
     if (json.containsKey("debug_mode"))
     {
@@ -316,6 +326,18 @@ void loadConfig()
                     if (DEBUG_MODE)
                         DEBUG_PRINTLN("DEBUG_MODE: " + String(DEBUG_MODE));
                 }
+                if (json.containsKey("alarm_h"))
+                {
+                    ALARM_H = json["alarm_h"].as<int>();
+                    if (DEBUG_MODE)
+                        DEBUG_PRINTLN("ALARM_H: " + String(ALARM_H));
+                }
+                if (json.containsKey("alarm_m"))
+                {
+                    ALARM_M = json["alarm_m"].as<int>();
+                    if (DEBUG_MODE)
+                        DEBUG_PRINTLN("ALARM_M: " + String(ALARM_M));
+                }
                 if (json.containsKey("debug_mode"))
                 {
                     DEBUG_MODE = json["debug_mode"].as<bool>();
@@ -375,4 +397,8 @@ String HUM_COLOR = "#0000FF";
 
 bool SHOW_DATE = true;
 
+uint8_t ALARM_H = 8;
+uint8_t ALARM_M = 0;
+
 bool DEBUG_MODE = true;
+

@@ -67,6 +67,8 @@ extern String TIME_ICON;
 extern String DATE_ICON;
 
 extern bool SHOW_DATE;
+extern uint8_t ALARM_H;
+extern uint8_t ALARM_M;
 
 void loadConfig();
 void setConfig(JsonObject &json);

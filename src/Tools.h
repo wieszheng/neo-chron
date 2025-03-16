@@ -1,3 +1,6 @@
+#ifndef TOOLS_H
+#define TOOLS_H
+
 #include <Arduino.h>
 #include <map>
 
@@ -42,6 +45,23 @@ String RGBtoHEX(int r, int g, int b)
         bs = "0" + bs;
 
     return rs + gs + bs;
+}
+
+uint16_t HEXtoColor(String hex)
+{
+    hex.replace("#", "");
+    hex = hex.substring(0, 6);
+    if (hex.length() == 6)
+    {
+        uint8_t r = strtol(hex.substring(0, 2).c_str(), nullptr, 16);
+        uint8_t g = strtol(hex.substring(2, 4).c_str(), nullptr, 16);
+        uint8_t b = strtol(hex.substring(4, 6).c_str(), nullptr, 16);
+        return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 uint16_t hexToUint16(const char* hex)
@@ -91,3 +111,48 @@ uint16_t getTextWidth(const char *text, bool ignoreUpperCase)
   }
   return width;
 }
+
+static byte c1;
+byte utf8ascii(byte ascii)
+{
+  if (ascii < 128)
+  {
+    c1 = 0;
+    return (ascii);
+  }
+  byte last = c1;
+  c1 = ascii;
+  switch (last)
+  {
+    case 0xC2:
+      return (ascii)-34;
+      break;
+    case 0xC3:
+      return (ascii | 0xC0) - 34;
+      break;
+    case 0x82:
+      if (ascii == 0xAC) return (0xEA);
+  }
+  return (0);
+}
+
+String utf8ascii(String s)
+{
+  String r = "";
+  char c;
+  for (unsigned int i = 0; i < s.length(); i++)
+  {
+    c = utf8ascii(s.charAt(i));
+    if (c != 0) r += c;
+  }
+  return r;
+}
+
+int timeToMinutes(const String &timeStr)
+{
+  int hours = timeStr.substring(0, 2).toInt();
+  int minutes = timeStr.substring(3, 5).toInt();
+  return hours * 60 + minutes;
+}
+
+#endif

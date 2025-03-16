@@ -2,6 +2,7 @@
 #include "AwtrixFont.h"
 #include "Apps.h"
 #include "Tools.h"
+#include "Icons.h"
 
 #define MATRIX_WIDTH 32
 #define MATRIX_HEIGHT 8
@@ -36,14 +37,6 @@ const unsigned long switchInterval = 10000;
 unsigned long lastSwitchTime = 0;
 int slideOffset = 0;
 const int slideSpeed = 1;
-
-int timeStringToMinutes(const String &timeStr)
-{
-  int hours = timeStr.substring(0, 2).toInt();
-  int minutes = timeStr.substring(3, 5).toInt();
-  return hours * 60 + minutes;
-}
-
 
 DisplayManager_ &DisplayManager_::getInstance()
 {
@@ -164,17 +157,42 @@ void DisplayManager_::gradationText(int16_t x, int16_t y, const char *text, bool
 {
   if (clear)
     matrix->clear();
-
-  int16_t cursorX = x;
-  int16_t cursorY = y;
   matrix->setCursor(x, y);
 
   for (int i = 0; text[i] != '\0'; i++)
   {
-    uint16_t color = gradation(cursorX, cursorY);
-    matrix->setTextColor(color);
+    ColorRGB start = RGBColorPalette[color_index][0];
+    ColorRGB end = RGBColorPalette[color_index][1];
+    int n = 0;
+    if (colorLoop < 31)
+    {
+      if (x + y > colorLoop)
+      {
+        n = x + y - colorLoop;
+      }
+      else
+      {
+        n = colorLoop - x - y;
+      }
+    }
+    else
+    {
+      if (x + y > (colorLoop - 30))
+      {
+        n = 30 - (x + y - colorLoop + 30);
+      }
+      else
+      {
+        n = 30 - (colorLoop - 30 - x - y);
+      }
+    }
+    int r = (end.r - start.r) / 30 * n + start.r;
+    int g = (end.g - start.g) / 30 * n + start.g;
+    int b = (end.b - start.b) / 30 * n + start.b;
+
+    matrix->setTextColor(matrix->Color(r, g, b));
     matrix->print(text[i]);
-    cursorX += 3;
+    x += 3;
   }
 
   if (clear)
@@ -235,9 +253,14 @@ void DisplayManager_::loadNativeApps()
     Apps.push_back(std::make_pair(0, TimeApp));
   if (SHOW_DATE)
     Apps.push_back(std::make_pair(1, DateApp));
-  // if (SHOW_WEATHER) Apps.push_back(std::make_pair(2, WeatherFrame));
-  // if (SHOW_TEMP) Apps.push_back(std::make_pair(3, TempFrame));
-  // if (SHOW_HUM) Apps.push_back(std::make_pair(4, HumFrame));
+  // if (true)
+  //   Apps.push_back(std::make_pair(2, WeatherApp));
+  if (true)
+    Apps.push_back(std::make_pair(3, TempApp));
+  if (true)
+    Apps.push_back(std::make_pair(4, HumApp));
+  if (true)
+    Apps.push_back(std::make_pair(5, WindApp));
   delete[] AppFunctions;
   AppCount = Apps.size();
   AppFunctions = new AppCallback[AppCount];
@@ -248,30 +271,32 @@ void DisplayManager_::loadNativeApps()
   }
 }
 
-
-
 void DisplayManager_::nightBrightness()
 {
   time_t now = time(nullptr);
   struct tm *timeInfo = localtime(&now);
   int currentMinutes = timeInfo->tm_hour * 60 + timeInfo->tm_min;
 
-  int nightStartMinutes = timeStringToMinutes(NIGHT_START);
-  int nightEndMinutes = timeStringToMinutes(NIGHT_END);
-
+  int nightStartMinutes = timeToMinutes(NIGHT_START);
+  int nightEndMinutes = timeToMinutes(NIGHT_END);
 
   if ((nightStartMinutes <= nightEndMinutes && currentMinutes >= nightStartMinutes && currentMinutes < nightEndMinutes) || (nightStartMinutes > nightEndMinutes && (currentMinutes >= nightStartMinutes || currentMinutes < nightEndMinutes)))
   {
-    setBrightness(MIN_BRIGHTNESS_NIGHT);  
+    matrix->setBrightness(MIN_BRIGHTNESS_NIGHT);
   }
   else
   {
-    setBrightness(MIN_BRIGHTNESS);
+    matrix->setBrightness(MIN_BRIGHTNESS);
   }
 }
 
 void DisplayManager_::tick()
 {
+  if (settingsMenuActive)
+  {
+    return;
+  }
+  StartWeatherUpdater();
   clear();
   int16_t y = 6;
   if (millis() - lastSwitchTime >= switchInterval)
@@ -304,39 +329,6 @@ void DisplayManager_::tick()
   (AppFunctions[nextFrame])(matrix, 0, y + (slideOffset < 0 ? 8 : -8));
 
   show();
-}
-
-uint16_t DisplayManager_::gradation(int x, int y)
-{
-  ColorRGB start = RGBColorPalette[color_index][0];
-  ColorRGB end = RGBColorPalette[color_index][1];
-  int n = 0;
-  if (colorLoop < 31)
-  {
-    if (x + y > colorLoop)
-    {
-      n = x + y - colorLoop;
-    }
-    else
-    {
-      n = colorLoop - x - y;
-    }
-  }
-  else
-  {
-    if (x + y > (colorLoop - 30))
-    {
-      n = 30 - (x + y - colorLoop + 30);
-    }
-    else
-    {
-      n = 30 - (colorLoop - 30 - x - y);
-    }
-  }
-  int r = (end.r - start.r) / 30 * n + start.r;
-  int g = (end.g - start.g) / 30 * n + start.g;
-  int b = (end.b - start.b) / 30 * n + start.b;
-  return matrix->Color(r, g, b);
 }
 
 void DisplayManager_::drawWifi(int x, int y, int state)
@@ -421,4 +413,69 @@ void DisplayManager_::drawWifi(int x, int y, int state)
   }
 
   matrix->show();
+}
+
+void DisplayManager_::showOption(int optionIndex)
+{
+  clear();
+  setTextColor(HEXtoColor(TEXTCOLOR));
+  printText(2, 6, "<", false, false);
+  printText(27, 6, ">", false, false);
+  switch (optionIndex)
+  {
+  case 0:
+    drawBMP(0, 12, icon_lingdang, 8, 8);
+    break;
+  case 1:
+    drawBMP(0, 12, icon_11, 8, 8);
+    break;
+  case 2:
+    drawBMP(0, 11, icon_1158, 8, 8);
+    break;
+  }
+  show();
+}
+
+void DisplayManager_::activateSettingsMenu()
+{
+  settingsMenuActive = true;
+}
+
+void DisplayManager_::deactivateSettingsMenu()
+{
+  settingsMenuActive = false;
+}
+
+void drawNumber(int num, int xOffset)
+{
+  int tens = num / 10;
+  int ones = num % 10;
+  matrix->setTextColor(HEXtoColor(TEXTCOLOR));
+  matrix->setCursor(xOffset, 6);
+  matrix->print(tens);
+  matrix->setCursor(xOffset + 4, 6);
+  matrix->print(ones);
+}
+
+void DisplayManager_::drawTimeSetting(int h, int m, bool selected)
+{
+  clear();
+  drawBMP(0, 1, icon_lingdang2, 8, 8);
+  drawNumber(h, 12);
+  printText(20, 6, ":", false, false);
+  drawNumber(m, 22);
+  int x = selected ? 22 : 12;
+  gradationText(x, 7, "__", false);
+  show();
+}
+
+void DisplayManager_::drawGif(int16_t x, int16_t y, Animation animation)
+{
+  uint8_t FRAME_INTERVAL = 100;
+  if (millis() - lastAnimationFrameTime >= FRAME_INTERVAL)
+  {
+    currentAnimationFrame = (currentAnimationFrame + 1) % animation.frameCount; // 循环帧
+    lastAnimationFrameTime = millis();
+  }
+  matrix->drawRGBBitmap(x, y, animation.frames[currentAnimationFrame], 8, 8);
 }
