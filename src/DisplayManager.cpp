@@ -446,28 +446,22 @@ void DisplayManager_::deactivateSettingsMenu()
   settingsMenuActive = false;
 }
 
-void drawNumber(int num, int xOffset)
-{
-  int tens = num / 10;
-  int ones = num % 10;
-  matrix->setTextColor(HEXtoColor(TEXTCOLOR));
-  matrix->setCursor(xOffset, 6);
-  matrix->print(tens);
-  matrix->setCursor(xOffset + 4, 6);
-  matrix->print(ones);
-}
-
 void DisplayManager_::drawTimeSetting(int h, int m, bool selected)
 {
   clear();
   drawBMP(0, 1, icon_lingdang2, 8, 8);
-  drawNumber(h, 12);
-  printText(20, 6, ":", false, false);
-  drawNumber(m, 22);
+  setTextColor(HEXtoColor(TEXTCOLOR));
+  char buffer[3];
+  snprintf(buffer, sizeof(buffer), "%02d", h);
+  printText(12,6,buffer,false,false);
+  printText(20,6,":",false,false);
+  snprintf(buffer, sizeof(buffer), "%02d", m);
+  printText(22,6,buffer,false,false);
   int x = selected ? 22 : 12;
-  gradationText(x, 7, "__", false);
+  gradationText(x,7,"__",false);
   show();
 }
+
 
 void DisplayManager_::drawGif(int16_t x, int16_t y, Animation animation)
 {

@@ -189,7 +189,7 @@ void WindApp(FastLED_NeoMatrix *matrix, int16_t x, int16_t y)
     Animation _icon = {icon_feng, sizeof(icon_feng) / sizeof(icon_feng[0])};
     DisplayManager.drawGif(x, y - 6, _icon);
 
-    String text = "lv" + data.windScale;
+    String text = data.windScale + "lv";
     uint16_t textWidth = getTextWidth(text.c_str(), true);
     int16_t textX = ((23 - textWidth) / 2);
 
